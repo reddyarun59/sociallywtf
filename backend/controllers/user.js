@@ -54,11 +54,17 @@ const loginUser=asyncHandler(async(req, res)=>{
     //Check for User Email
     const user=await User.findOne({email}).select("+password")
 
+    const options = {
+        expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+        httpOnly: true,
+      };
+
     if(user&&(await bcrypt.compare(password, user.password))){
-        res.status(201).json({
+        res.status(201).cookie("token",generateToken(user.id),options).json({
             _id:user.id,
             name:user.name,
             email:user.email,
+            password:user.password,
             token:generateToken(user._id)
         })
     }else{
