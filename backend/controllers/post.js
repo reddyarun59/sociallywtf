@@ -85,7 +85,7 @@ const likeAndUnlikePost=asyncHandler(async(req, res)=>{
 
 const getPostsOfFollowing=asyncHandler(async(req, res)=>{
     
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user._id);
 
     const posts = await Post.find({
         user:{

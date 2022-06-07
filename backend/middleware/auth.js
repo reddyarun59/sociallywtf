@@ -3,26 +3,38 @@ const asyncHandler = require("express-async-handler")
 const User = require("../models/User")
 
 const protect=asyncHandler(async(req, res, next)=>{
-    let token
+    
+    
+    try {
 
-    if(req.headers.authorization&&req.headers.authorization.startsWith('Bearer')){
-        try {
+        const cookies = req.headers.cookie;
+        const token = cookies.split(" ")[1];
+
             //Get token from Header
-            token=req.headers.authorization.split(" ")[1]
+            //token=req.headers.authorization.split(" ")[1]
 
             //Verify token
-            const decoded= jwt.verify(token, process.env.JWT_SECRET)
+            // const decoded= jwt.verify(token, process.env.JWT_SECRET)
 
-            //Get user from the token
-            req.user=await User.findById(decoded.id).select('-password')
+            // //Get user from the token
+            // req.user=await User.findById(decoded.id)
 
-            next()
+            jwt.verify(String(token), process.env.JWT_SECRET, (err, user) => {
+                if (err) {
+                  return res.status(400).json({ message: "Invalid TOken" });
+                }
+                //console.log(user.id);
+                req.id = user.id;
+              });
+              next();
+
+            //next()
         } catch (error) {
             console.log(error)
             res.status(401)
             throw new Error('Not Authorized')
         }
-    }
+    
 
     if(!token){
         res.status(401)
